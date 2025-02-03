@@ -4,6 +4,8 @@
 
 # module import heehoo
 import requests, json, argparse
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # argparser hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 parser = argparse.ArgumentParser(description="Extract the Global Address List (GAL) on Exchange 2013 servers via Outlook Web Access (OWA)")
@@ -47,7 +49,7 @@ FIND_PEOPLE_URL = URL + "/owa/service.svc?action=FindPeople"
 
 # Attempt a login to OWA
 login_data={"username":USERNAME, "password":PASSWORD, 'destination': URL, 'flags': '4', 'forcedownlevel': '0'}
-r = s.post(AUTH_URL, data=login_data, headers={'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"})
+r = s.post(AUTH_URL, data=login_data, headers={'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"}, verify=False)
 
 
 # The Canary is a unique ID thing provided upon a successful login that's also required in the header for the next few requests to be successful.
@@ -60,7 +62,7 @@ print("\nLogin Successful!\nCanary key:", session_canary)
 
 
 # Returns an object containing the IDs of all accessible address lists, so we can specify one in the FindPeople request
-r = s.post(PEOPLE_FILTERS_URL, headers={'Content-type': 'application/json', 'X-OWA-CANARY': session_canary, 'Action': 'GetPeopleFilters'}, data={}).json()
+r = s.post(PEOPLE_FILTERS_URL, headers={'Content-type': 'application/json', 'X-OWA-CANARY': session_canary, 'Action': 'GetPeopleFilters'}, data={}, verify=False).json()
 
 
 # Find the Global Address List id
@@ -70,6 +72,8 @@ for i in r:
         print("Global List Address ID:", AddressListId)
         break
 
+
+print("===================================================")
 
 # Set to None to return all emails in the list (this is the search term for the FindPeople request)
 query = None
@@ -131,5 +135,6 @@ with open(OUTPUT, 'a+') as outputfile:
         outputfile.write(email+"\n")
         print(email)
 
+print("===================================================")
 print("\nFetched %s emails" % str(len(userlist)))
 print("Emails written to", OUTPUT)
