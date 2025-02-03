@@ -32,10 +32,10 @@ print("Connecting to %s/owa" % url)
 # Get OWA landing page
 # Add https:// scheme if not already added in the --host arg
 try:
-    s.get(url+"/owa")
+    s.get(url+"/owa", verify=False)
     URL = url
 except requests.exceptions.MissingSchema:
-    s.get("https://"+url+"/owa")
+    s.get("https://"+url+"/owa", verify=False)
     URL = "https://"+url
 
 
@@ -119,7 +119,7 @@ peopledata = {
 
 
 # Make da request.
-r = s.post(FIND_PEOPLE_URL, headers={'Content-type': 'application/json', 'X-OWA-CANARY': session_canary, 'Action': 'FindPeople'}, data=json.dumps(peopledata)).json()
+r = s.post(FIND_PEOPLE_URL, headers={'Content-type': 'application/json', 'X-OWA-CANARY': session_canary, 'Action': 'FindPeople'}, data=json.dumps(peopledata), verify=False).json()
 
 
 # Parse out the emails, print them and append them to a file.
